@@ -29,6 +29,8 @@ void CFdtdDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CFdtdDlg, CSimulationDialog)
     ON_WM_PAINT()
     ON_WM_QUERYDRAGICON()
+    ON_BN_CLICKED(IDC_BUTTON1, &CFdtdDlg::OnBnClickedButton1)
+    ON_BN_CLICKED(IDC_BUTTON2, &CFdtdDlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -82,4 +84,27 @@ void CFdtdDlg::OnPaint()
 HCURSOR CFdtdDlg::OnQueryDragIcon()
 {
     return static_cast<HCURSOR>(m_hIcon);
+}
+
+void CFdtdDlg::OnSimulation()
+{
+    while(m_bWorking)
+    {
+        Sleep(1000); // Stub
+    }
+
+    CSimulationDialog::OnSimulation();
+}
+
+
+void CFdtdDlg::OnBnClickedButton1()
+{
+    UpdateData(TRUE);
+    StartSimulationThread();
+}
+
+
+void CFdtdDlg::OnBnClickedButton2()
+{
+    StopSimulationThread();
 }

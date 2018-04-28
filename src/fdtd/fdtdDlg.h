@@ -28,4 +28,8 @@ protected:
     afx_msg void OnPaint();
     afx_msg HCURSOR OnQueryDragIcon();
     DECLARE_MESSAGE_MAP()
+    void OnSimulation();
+public:
+    afx_msg void OnBnClickedButton1();
+    afx_msg void OnBnClickedButton2();
 };
