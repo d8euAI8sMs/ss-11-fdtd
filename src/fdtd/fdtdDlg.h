@@ -4,6 +4,7 @@
 #pragma once
 
 #include <util/common/gui/SimulationDialog.h>
+#include "model.h"
 
 // CFdtdDlg dialog
 class CFdtdDlg : public CSimulationDialog
@@ -32,4 +33,6 @@ protected:
 public:
     afx_msg void OnBnClickedButton1();
     afx_msg void OnBnClickedButton2();
+    model::parameters p;
+    model::model_data d;
 };

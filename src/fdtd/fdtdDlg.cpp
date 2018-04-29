@@ -17,6 +17,7 @@
 
 CFdtdDlg::CFdtdDlg(CWnd* pParent /*=NULL*/)
     : CSimulationDialog(CFdtdDlg::IDD, pParent)
+    , p(model::make_default_parameters())
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -88,9 +89,23 @@ HCURSOR CFdtdDlg::OnQueryDragIcon()
 
 void CFdtdDlg::OnSimulation()
 {
+    model::adjust_parameters(p);
+    model::reset_model_data(p, d);
+    model::fdtd_solve solver(p, d);
     while(m_bWorking)
     {
-        Sleep(1000); // Stub
+        m_cPlot2d.points = d.points;
+        m_cPlot2d.values.resize(d.points.size());
+        for (size_t i = 0; i < d.points.size(); ++i)
+        {
+            m_cPlot2d.values[i].resize(d.points[i].size());
+            for (size_t j = 0; j < d.points[i].size(); ++j)
+            {
+                m_cPlot2d.values[i][j] = d.cells[i][j].ez;
+            }
+        }
+        m_cPlot2d.RedrawWindow();
+        solver.next();
     }
 
     CSimulationDialog::OnSimulation();
