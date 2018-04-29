@@ -42,7 +42,6 @@ void CFdtdDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_EDIT4, p.dx);
     DDX_Text(pDX, IDC_EDIT5, p.dy);
     DDX_Text(pDX, IDC_EDIT3, p.T);
-    DDX_Text(pDX, IDC_EDIT6, p.T0);
     DDX_Text(pDX, IDC_EDIT7, p.eps);
     DDX_Text(pDX, IDC_EDIT10, p.sx);
     DDX_Text(pDX, IDC_EDIT11, p.sy);
