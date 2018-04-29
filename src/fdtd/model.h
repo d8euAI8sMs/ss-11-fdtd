@@ -35,6 +35,7 @@ namespace model
     {
         p.dy = p.dx;
         p.dt = p.dx * 6e-8;
+        p.T0 = 6 * p.T;
     }
 
     inline parameters make_default_parameters()
@@ -170,12 +171,10 @@ namespace model
 
         d.ss[{ si, sj }] = [p] (size_t ti)
         {
-            double t = std::remainder((double) ti, p.T0) + p.T0 / 4, rt;
+            double t = std::fmod((double) ti, p.T0), rt;
             rt = t - p.T0 / 2;
             double pos_pulse = std::exp(- 0.5 * rt * rt / p.T / p.T);
-            rt = t - p.T0;
-            double neg_pulse = std::exp(- 0.5 * rt * rt / p.T / p.T);
-            return p.smag * (pos_pulse - neg_pulse);
+            return p.smag * pos_pulse;
         };
     }
 
