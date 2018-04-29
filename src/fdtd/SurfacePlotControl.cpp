@@ -101,7 +101,7 @@ void CSurfacePlotControl::OnDrawItemOGL()
     }
     glEnd();
 
-    glFlush();
+    glFinish();
 }
 
 void CSurfacePlotControl::OnDestroyOGL()
