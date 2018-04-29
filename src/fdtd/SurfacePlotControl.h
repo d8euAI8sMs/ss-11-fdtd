@@ -23,6 +23,7 @@ public:
     double zangle;
     double xangle;
     double color_factor;
+    std::function < void () > custom_painter;
 
 public:
     CSurfacePlotControl();

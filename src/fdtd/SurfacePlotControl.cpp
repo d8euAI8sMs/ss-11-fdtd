@@ -101,6 +101,8 @@ void CSurfacePlotControl::OnDrawItemOGL()
     }
     glEnd();
 
+    if (custom_painter) custom_painter();
+
     glFinish();
 }
 
