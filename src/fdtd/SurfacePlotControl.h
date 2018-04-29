@@ -22,6 +22,7 @@ public:
     double scale;
     double zangle;
     double xangle;
+    double color_factor;
 
 public:
     CSurfacePlotControl();

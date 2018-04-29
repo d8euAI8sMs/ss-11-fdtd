@@ -42,6 +42,7 @@ CSurfacePlotControl::CSurfacePlotControl()
     , scale(1)
     , zangle(30)
     , xangle(-45)
+    , color_factor(1)
 {
 }
 
@@ -86,10 +87,10 @@ void CSurfacePlotControl::OnDrawItemOGL()
     for (size_t i = 0; i + 1 < points.size(); ++i)
     for (size_t j = 0; j + 1 < points[i].size(); ++j)
     {
-        _interpolate_color(values[i][j], color);
-        _interpolate_color(values[i + 1][j], color + 3);
-        _interpolate_color(values[i][j + 1], color + 6);
-        _interpolate_color(values[i + 1][j + 1], color + 9);
+        _interpolate_color(color_factor * values[i][j], color);
+        _interpolate_color(color_factor * values[i + 1][j], color + 3);
+        _interpolate_color(color_factor * values[i][j + 1], color + 6);
+        _interpolate_color(color_factor * values[i + 1][j + 1], color + 9);
 
         glColor3fv(color); glVertex3d(points[i][j].x, points[i][j].y, values[i][j]);
         glColor3fv(color + 3); glVertex3d(points[i + 1][j].x, points[i + 1][j].y, values[i + 1][j]);
