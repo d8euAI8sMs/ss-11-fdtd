@@ -6,6 +6,9 @@
 #include "fdtdDlg.h"
 #include "afxdialogex.h"
 
+#include "model.h"
+#include <GL/GL.h>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -17,6 +20,10 @@
 
 CFdtdDlg::CFdtdDlg(CWnd* pParent /*=NULL*/)
     : CSimulationDialog(CFdtdDlg::IDD, pParent)
+    , m_fTopView(FALSE)
+    , m_fPerspectiveView(TRUE)
+    , m_fAutoRotate(FALSE)
+    , m_lfRotationDelta(1)
     , p(model::make_default_parameters())
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -25,6 +32,22 @@ CFdtdDlg::CFdtdDlg(CWnd* pParent /*=NULL*/)
 void CFdtdDlg::DoDataExchange(CDataExchange* pDX)
 {
     CSimulationDialog::DoDataExchange(pDX);
+    DDX_Control(pDX, IDC_2DPLOT, m_cPlot2d);
+    DDX_Check(pDX, IDC_CHECK1, m_fTopView);
+    DDX_Check(pDX, IDC_CHECK2, m_fPerspectiveView);
+    DDX_Control(pDX, IDC_SLIDER1, m_cScaleFactorCtrl);
+    DDX_Control(pDX, IDC_SLIDER2, m_cRotationAngleCtrl);
+    DDX_Check(pDX, IDC_CHECK3, m_fAutoRotate);
+    DDX_Control(pDX, IDC_SLIDER4, m_cXRotationAngleCtrl);
+    DDX_Text(pDX, IDC_EDIT4, p.dx);
+    DDX_Text(pDX, IDC_EDIT5, p.dy);
+    DDX_Text(pDX, IDC_EDIT3, p.T);
+    DDX_Text(pDX, IDC_EDIT6, p.T0);
+    DDX_Text(pDX, IDC_EDIT7, p.eps);
+    DDX_Text(pDX, IDC_EDIT10, p.sx);
+    DDX_Text(pDX, IDC_EDIT11, p.sy);
+    DDX_Text(pDX, IDC_EDIT8, p.smag);
+    DDX_Text(pDX, IDC_EDIT9, p.d);
 }
 
 BEGIN_MESSAGE_MAP(CFdtdDlg, CSimulationDialog)
@@ -32,6 +55,10 @@ BEGIN_MESSAGE_MAP(CFdtdDlg, CSimulationDialog)
     ON_WM_QUERYDRAGICON()
     ON_BN_CLICKED(IDC_BUTTON1, &CFdtdDlg::OnBnClickedButton1)
     ON_BN_CLICKED(IDC_BUTTON2, &CFdtdDlg::OnBnClickedButton2)
+    ON_BN_CLICKED(IDC_CHECK1, &CFdtdDlg::OnBnClickedCheck1)
+    ON_BN_CLICKED(IDC_CHECK2, &CFdtdDlg::OnBnClickedCheck1)
+    ON_BN_CLICKED(IDC_CHECK3, &CFdtdDlg::OnBnClickedCheck1)
+    ON_WM_HSCROLL()
 END_MESSAGE_MAP()
 
 
@@ -47,6 +74,47 @@ BOOL CFdtdDlg::OnInitDialog()
     SetIcon(m_hIcon, FALSE);        // Set small icon
 
     // TODO: Add extra initialization here
+
+    m_cPlot2d.color_factor = 5;
+    m_cPlot2d.xangle = 0;
+    m_cPlot2d.zangle = 270;
+    m_cPlot2d.scale = 1.5;
+    m_cPlot2d.custom_painter = [this] () {
+        glColor3b(0, 0, 0);
+        glLineWidth(5);
+        glBegin(GL_LINES);
+        {
+            glVertex3d(-1, 0, 0.1);
+            glVertex3d(-p.d / 2, 0, 0.1);
+            glVertex3d(p.d / 2, 0, 0.1);
+            glVertex3d(1, 0, 0.1);
+            glVertex3d(-1, 0, -0.1);
+            glVertex3d(-p.d / 2, 0, -0.1);
+            glVertex3d(p.d / 2, 0, -0.1);
+            glVertex3d(1, 0, -0.1);
+        }
+        glEnd();
+        glBegin(GL_QUADS);
+        {
+            glVertex3d(-1, 0, -0.1);
+            glVertex3d(-p.d / 2, 0, -0.1);
+            glVertex3d(-p.d / 2, 0, 0.1);
+            glVertex3d(-1, 0, 0.1);
+            glVertex3d(p.d / 2, 0, -0.1);
+            glVertex3d(1, 0, -0.1);
+            glVertex3d(1, 0, 0.1);
+            glVertex3d(p.d / 2, 0, 0.1);
+        }
+        glEnd();
+    };
+
+    int rmin, rmax;
+    m_cXRotationAngleCtrl.GetRange(rmin, rmax);
+    m_cXRotationAngleCtrl.SetPos((int) ((m_cPlot2d.xangle / 180 + 1) / 2 * (rmax - rmin) + rmin));
+    m_cRotationAngleCtrl.GetRange(rmin, rmax);
+    m_cRotationAngleCtrl.SetPos((int) (m_cPlot2d.zangle / 360 * (rmax - rmin) + rmin));
+    m_cScaleFactorCtrl.GetRange(rmin, rmax);
+    m_cScaleFactorCtrl.SetPos((int) ((m_cPlot2d.scale - 1) / 5 * (rmax - rmin) + rmin));
 
     return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -104,6 +172,7 @@ void CFdtdDlg::OnSimulation()
                 m_cPlot2d.values[i][j] = d.cells[i][j].ez;
             }
         }
+        if (m_fAutoRotate) m_cPlot2d.zangle += m_lfRotationDelta;
         m_cPlot2d.RedrawWindow();
         solver.next();
     }
@@ -122,4 +191,33 @@ void CFdtdDlg::OnBnClickedButton1()
 void CFdtdDlg::OnBnClickedButton2()
 {
     StopSimulationThread();
+}
+
+
+void CFdtdDlg::OnBnClickedCheck1()
+{
+    UpdateData(TRUE);
+    m_cPlot2d.top_view = (m_fTopView == TRUE);
+    m_cPlot2d.perspective_view = (m_fPerspectiveView == TRUE);
+}
+
+
+void CFdtdDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+    int rmin, rmax;
+    m_cScaleFactorCtrl.GetRange(rmin, rmax);
+    m_cPlot2d.scale = (1 + 5 * (double) (m_cScaleFactorCtrl.GetPos() - rmin) / (rmax - rmin));
+    m_cXRotationAngleCtrl.GetRange(rmin, rmax);
+    m_cPlot2d.xangle = 180 * 2 * ((double) (m_cXRotationAngleCtrl.GetPos() - rmin) / (rmax - rmin) - 0.5);
+    if (m_fAutoRotate)
+    {
+        m_cRotationAngleCtrl.GetRange(rmin, rmax);
+        m_lfRotationDelta = (1 + (double) (m_cRotationAngleCtrl.GetPos() - rmin) / (rmax - rmin));
+    }
+    else
+    {
+        m_cRotationAngleCtrl.GetRange(rmin, rmax);
+        m_cPlot2d.zangle = 360 * (double) (m_cRotationAngleCtrl.GetPos() - rmin) / (rmax - rmin);
+    }
+    CSimulationDialog::OnHScroll(nSBCode, nPos, pScrollBar);
 }

@@ -4,6 +4,8 @@
 #pragma once
 
 #include <util/common/gui/SimulationDialog.h>
+#include "SurfacePlotControl.h"
+#include "afxcmn.h"
 #include "model.h"
 
 // CFdtdDlg dialog
@@ -31,8 +33,18 @@ protected:
     DECLARE_MESSAGE_MAP()
     void OnSimulation();
 public:
+    CSurfacePlotControl m_cPlot2d;
     afx_msg void OnBnClickedButton1();
     afx_msg void OnBnClickedButton2();
+    afx_msg void OnBnClickedCheck1();
+    BOOL m_fTopView;
+    BOOL m_fPerspectiveView;
+    CSliderCtrl m_cScaleFactorCtrl;
+    afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+    CSliderCtrl m_cRotationAngleCtrl;
+    BOOL m_fAutoRotate;
+    double m_lfRotationDelta;
+    CSliderCtrl m_cXRotationAngleCtrl;
     model::parameters p;
     model::model_data d;
 };
