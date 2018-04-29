@@ -10,12 +10,22 @@
 
 static void _interpolate_color(double value, GLfloat *color)
 {
-    const float aR = 0; const float aG = 0; const float aB = 1;
-    const float bR = 1; const float bG = 1; const float bB = 0;
+    const float aR = 1;   const float aG = 0; const float aB = 0;
+    const float bR = 0.8; const float bG = 1; const float bB = 1;
+    const float cR = 0;   const float cG = 0; const float cB = 1;
 
-    color[0] = (float)((bR - aR) * (value + 1) / 2) + aR;
-    color[1] = (float)((bG - aG) * (value + 1) / 2) + aG;
-    color[2] = (float)((bB - aB) * (value + 1) / 2) + aB;
+    if (value > 0)
+    {
+        color[0] = (float)((aR - bR) * value) + bR;
+        color[1] = (float)((aG - bG) * value) + bG;
+        color[2] = (float)((aB - bB) * value) + bB;
+    }
+    else
+    {
+        color[0] = (float)((cR - bR) * (-value)) + bR;
+        color[1] = (float)((cG - bG) * (-value)) + bG;
+        color[2] = (float)((cB - bB) * (-value)) + bB;
+    }
 }
 
 
