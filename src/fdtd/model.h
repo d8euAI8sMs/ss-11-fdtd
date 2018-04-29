@@ -53,7 +53,7 @@ namespace model
             32, 32,
 
             // source params
-            75, 15, 0.00025,
+            0, 5, 0.00025,
 
             // other params
             0, 0.005, 0.005
