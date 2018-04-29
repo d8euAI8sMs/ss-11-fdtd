@@ -17,6 +17,11 @@ public:
 
     std::vector < std::vector < geom::point < double > > > points;
     std::vector < std::vector < double > > values;
+    bool top_view;
+    bool perspective_view;
+    double scale;
+    double zangle;
+    double xangle;
 
 public:
     CSurfacePlotControl();

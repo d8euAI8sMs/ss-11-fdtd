@@ -24,6 +24,11 @@ static void _interpolate_color(double value, GLfloat *color)
 IMPLEMENT_DYNAMIC(CSurfacePlotControl, COglControl)
 
 CSurfacePlotControl::CSurfacePlotControl()
+    : top_view(false)
+    , perspective_view(true)
+    , scale(1)
+    , zangle(30)
+    , xangle(-45)
 {
 }
 
@@ -47,13 +52,17 @@ void CSurfacePlotControl::OnDrawItemOGL()
 
 	glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45, 1, 2, 7);
-    glTranslatef(0, 0, -4);
-
- 	glMatrixMode(GL_MODELVIEW);
- 	glLoadIdentity();
-    glRotatef(-45, 1, 0, 0);
-    glRotatef(30, 0, 0, 1);
+    if (perspective_view)
+        gluPerspective(45, 1, 2, 7);
+    else
+        glOrtho(-1, 1, -1, 1, -100, 100);
+    if (!top_view)
+    {
+        glTranslatef(0, 0, -4);
+        glRotatef(xangle, 1, 0, 0);
+        glRotatef(zangle, 0, 0, 1);
+        glScaled(scale, scale, scale);
+    }
 
     glClearColor(0, 0, 0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
