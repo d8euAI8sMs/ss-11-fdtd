@@ -14,6 +14,9 @@ static void _interpolate_color(double value, GLfloat *color)
     const float bR = 0.8; const float bG = 1; const float bB = 1;
     const float cR = 0;   const float cG = 0; const float cB = 1;
 
+    if (value > 1)  value = 1;
+    if (value < -1) value = -1;
+
     if (value > 0)
     {
         color[0] = (float)((aR - bR) * value) + bR;
