@@ -196,11 +196,13 @@ namespace model
     public:
         void next()
         {
-            size_t rows = (size_t) std::ceil(2 / p.dy);
-            size_t cols = (size_t) std::ceil(2 / p.dx);
+            int rows = (int) std::ceil(2 / p.dy);
+            int cols = (int) std::ceil(2 / p.dx);
 
-            for (size_t j = 1; j < cols; ++j)
-            for (size_t i = 1; i < rows; ++i)
+            #pragma omp parallel for
+            for (int j = 1; j < cols; ++j)
+            #pragma omp parallel for firstprivate(j)
+            for (int i = 1; i < rows; ++i)
             {
                 d.cells[i][j].dz =
                     d.y_layers[i].g3() * d.x_layers[j].g3() * d.cells[i][j].dz +
@@ -219,26 +221,32 @@ namespace model
                 d.cells[std::get<0>(c).i][std::get<0>(c).j].dz = std::get<1>(c) / p.dx / p.dy;
             }
 
-            for (size_t j = 0; j < cols; ++j)
-            for (size_t i = 0; i < rows; ++i)
+            #pragma omp parallel for
+            for (int j = 0; j < cols; ++j)
+            #pragma omp parallel for firstprivate(j)
+            for (int i = 0; i < rows; ++i)
             {
                 d.cells[i][j].ez = d.cells[i][j].dz / p.eps;
             }
 
-            for (size_t j = 0; j < cols - 1; ++j)
+            #pragma omp parallel for
+            for (int j = 0; j < cols - 1; ++j)
             {
                 d.cells[0][j].ez = 0;
                 d.cells[rows - 1][j].ez = 0;
             }
 
-            for (size_t i = 0; i < rows - 1; ++i)
+            #pragma omp parallel for
+            for (int i = 0; i < rows - 1; ++i)
             {
                 d.cells[i][0].ez = 0;
                 d.cells[i][cols - 1].ez = 0;
             }
 
-            for (size_t j = 0; j < cols - 1; ++j)
-            for (size_t i = 1; i < rows; ++i)
+            #pragma omp parallel for
+            for (int j = 0; j < cols - 1; ++j)
+            #pragma omp parallel for firstprivate(j)
+            for (int i = 1; i < rows; ++i)
             {
                 d.cells[i][j].ihx +=
                     d.y_layers[i].f1() * (d.cells[i][j].ez - d.cells[i][j + 1].ez);
@@ -249,8 +257,10 @@ namespace model
                     );
             }
 
-            for (size_t j = 0; j < cols; ++j)
-            for (size_t i = 0; i < rows - 1; ++i)
+            #pragma omp parallel for
+            for (int j = 0; j < cols; ++j)
+            #pragma omp parallel for firstprivate(j)
+            for (int i = 0; i < rows - 1; ++i)
             {
                 d.cells[i][j].ihy +=
                     d.x_layers[j].f1() * (d.cells[i + 1][j].ez - d.cells[i][j].ez);

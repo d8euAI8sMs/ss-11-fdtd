@@ -8,6 +8,7 @@
 
 #include "model.h"
 #include <GL/GL.h>
+#include <omp.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -156,6 +157,7 @@ HCURSOR CFdtdDlg::OnQueryDragIcon()
 
 void CFdtdDlg::OnSimulation()
 {
+    omp_set_num_threads(omp_get_num_procs());
     model::adjust_parameters(p);
     model::reset_model_data(p, d);
     model::fdtd_solve solver(p, d);
@@ -163,10 +165,12 @@ void CFdtdDlg::OnSimulation()
     {
         m_cPlot2d.points = d.points;
         m_cPlot2d.values.resize(d.points.size());
-        for (size_t i = 0; i < d.points.size(); ++i)
+        #pragma omp parallel for
+        for (int i = 0; i < d.points.size(); ++i)
         {
             m_cPlot2d.values[i].resize(d.points[i].size());
-            for (size_t j = 0; j < d.points[i].size(); ++j)
+            #pragma omp parallel for firstprivate(i)
+            for (int j = 0; j < d.points[i].size(); ++j)
             {
                 m_cPlot2d.values[i][j] = d.cells[i][j].ez;
             }
