@@ -133,7 +133,7 @@ namespace model
 
         for (size_t j = 0; j < cols; ++j)
         {
-            d.y_layers[j] = { 0, 0 };
+            d.x_layers[j] = { 0, 0 };
         }
 
         for (size_t i = 0; i <= p.pml_ny; ++i)
